@@ -8,6 +8,7 @@ from config import *
 import time
 import requests
 import pickle
+import io
 
 
 def login(url):
@@ -17,13 +18,16 @@ def login(url):
     time.sleep(1)
 
     login_button = wait.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "#header > div > div > div.o-unlogin.fl > a.u-login.fl")))
+        EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > a:nth-child(2)")))
     # 点击登录按钮
     login_button.click()
 
     # 这个时候我们用二维码登录，设置最多等待3分钟，如果登录那个区域是可见的，就登录成功
+
+
+    # 检查是否登录成功
     WebDriverWait(driver, 180).until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "#header > div > div > div.o-login.fl")))
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > a > span.navIconDesc.UserInfo-nickname")))
 
     print("登录成功")
     # 保存cookie到cookies.pkl文件
@@ -33,13 +37,13 @@ def login(url):
     # 把cookie写入文件
     if not os.path.exists("cookie"):
         os.mkdir("cookie")
-    pickle.dump(cookies, open("./cookie/cookies.pkl", "wb"))
+    pickle.dump(cookies, io.open("./cookie/cookies.pkl", "wb"))
 
 
 def login_with_cookie(url):
     driver.get("https://www.douyu.com")
     # 把cookie文件加载出来
-    with open("./cookie/cookies.pkl", "rb") as cookiefile:
+    with io.open("./cookie/cookies.pkl", "rb") as cookiefile:
         cookies = pickle.load(cookiefile)
     for cookie in cookies:
         # print(cookie)
@@ -49,31 +53,30 @@ def login_with_cookie(url):
     # 如果cookie没有登录成功，退出程序
     try:
         WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.CSS_SELECTOR, "#header > div > div > div.o-login.fl")))
+            EC.visibility_of_element_located((By.CSS_SELECTOR, "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > a > span.navIconDesc.UserInfo-nickname")))
     except:
         print("对不起，使用cookie登录失败，请先删除cookies文件再重新登录")
-        FIRST_TIME = True
         os._exit(0)
     print("登录成功")
     print(driver.title)
 
-
 def send_barrage():
-    file = open("danmu.dm", mode='r', encoding='utf-8')
+    file = io.open("danmu.dm", mode='r', encoding='utf-8')
     while (True):
+        print('开始发送弹幕')
         line = file.readline()
         if not line:
             file.seek(0)
             continue
         wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-send-msg > textarea"))).send_keys(line)
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > textarea"))).send_keys(line)
 
         time.sleep(TIME)
         wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-send-msg > div.b-btn"))).click()
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > div"))).click()
         # 清空输入框信息
         wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-send-msg > textarea"))).clear()
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > textarea"))).clear()
         print(line)
 
 
