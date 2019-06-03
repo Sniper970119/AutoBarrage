@@ -16,18 +16,21 @@ def login(url):
     driver.maximize_window()
     print(driver.title)
     time.sleep(1)
-
+    # #js-header > div > div > div.Header-right > div.Header-login-wrap > div > div > div > div > div > a:nth-child(3)
+    # #js-header > div > div > div.Header-right > div.Header-login-wrap > div > a:nth-child(2)
+    # #js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > div.MuteStatus.is-noLogin > span
     login_button = wait.until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > a:nth-child(2)")))
+        EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                    "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > div > a > span")))
+    print('找到登录按钮')
     # 点击登录按钮
     login_button.click()
 
     # 这个时候我们用二维码登录，设置最多等待3分钟，如果登录那个区域是可见的，就登录成功
-
-
     # 检查是否登录成功
     WebDriverWait(driver, 180).until(
-        EC.visibility_of_element_located((By.CSS_SELECTOR, "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > a > span.navIconDesc.UserInfo-nickname")))
+        EC.visibility_of_element_located((By.CSS_SELECTOR,
+                                          "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > a > span > div > div")))
 
     print("登录成功")
     # 保存cookie到cookies.pkl文件
@@ -53,12 +56,14 @@ def login_with_cookie(url):
     # 如果cookie没有登录成功，退出程序
     try:
         WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.CSS_SELECTOR, "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > a > span.navIconDesc.UserInfo-nickname")))
+            EC.visibility_of_element_located((By.CSS_SELECTOR,
+                                              "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > a > span > div > div")))
     except:
         print("对不起，使用cookie登录失败，请先删除cookies文件再重新登录")
         os._exit(0)
     print("登录成功")
     print(driver.title)
+
 
 def send_barrage():
     file = io.open("danmu.dm", mode='r', encoding='utf-8')
@@ -69,14 +74,18 @@ def send_barrage():
             file.seek(0)
             continue
         wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > textarea"))).send_keys(line)
+            EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                        "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > textarea"))).send_keys(
+            line)
 
         time.sleep(TIME)
         wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > div"))).click()
+            EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                        "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > div"))).click()
         # 清空输入框信息
         wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > textarea"))).clear()
+            EC.element_to_be_clickable((By.CSS_SELECTOR,
+                                        "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > textarea"))).clear()
         print(line)
 
 
@@ -86,7 +95,9 @@ if __name__ == "__main__":
         "profile.default_content_setting_values.plugins": 1,
         "profile.content_settings.plugin_whitelist.adobe-flash-player": 1,
         "profile.content_settings.exceptions.plugins.*,*.per_resource.adobe-flash-player": 1,
-        "PluginsAllowedForUrls": "https://www.douyu.com"
+        "PluginsAllowedForUrls": "https://www.douyu.com",
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled": False
     }
     # 修改chrome配置
     options.add_experimental_option("prefs", prefs)
