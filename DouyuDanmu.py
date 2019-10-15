@@ -4,7 +4,6 @@ from selenium import webdriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
-from config import *
 import time
 import requests
 import pickle
@@ -16,9 +15,6 @@ def login(url):
     driver.maximize_window()
     print(driver.title)
     time.sleep(1)
-    # #js-header > div > div > div.Header-right > div.Header-login-wrap > div > div > div > div > div > a:nth-child(3)
-    # #js-header > div > div > div.Header-right > div.Header-login-wrap > div > a:nth-child(2)
-    # #js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > div.MuteStatus.is-noLogin > span
     login_button = wait.until(
         EC.element_to_be_clickable((By.CSS_SELECTOR,
                                     "#js-header > div > div > div.Header-right > div.Header-login-wrap > div > div > a > span")))
@@ -77,16 +73,14 @@ def send_barrage():
             EC.element_to_be_clickable((By.CSS_SELECTOR,
                                         "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > textarea"))).send_keys(
             line)
-
-        time.sleep(TIME)
+        time.sleep(delay_time)
         wait.until(
             EC.element_to_be_clickable((By.CSS_SELECTOR,
-                                        "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > div"))).click()
+                                        "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > div.ChatSend-button"))).click()
         # 清空输入框信息
         wait.until(
             EC.element_to_be_clickable((By.CSS_SELECTOR,
                                         "#js-player-asideMain > div > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > textarea"))).clear()
-        print(line)
 
 
 if __name__ == "__main__":
@@ -108,7 +102,15 @@ if __name__ == "__main__":
     # 显示等待是定向性的，最大等待时间10s,每次检测元素有没有生成的时间间隔300ms，过了最大等待时间抛出异常
     wait = WebDriverWait(driver, timeout=10, poll_frequency=300)
 
-    url = 'https://www.douyu.com/' + ROOM_ID
+    # 解析ini文件
+    import configparser
+
+    conf = configparser.ConfigParser()
+    conf.read('./config.ini')
+    room_id = conf.get('dm', 'room_id')
+    delay_time = int(conf.get('dm', 'delay'))
+
+    url = 'https://www.douyu.com/' + room_id
 
     if os.path.exists("./cookie/cookies.pkl"):
         print("存在Cookies，自动登录")
